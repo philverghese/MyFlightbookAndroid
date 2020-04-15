@@ -1,7 +1,7 @@
 /*
 	MyFlightbook for Android - provides native access to MyFlightbook
 	pilot's logbook
-    Copyright (C) 2017-2019 MyFlightbook, LLC
+    Copyright (C) 2017-2020 MyFlightbook, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,9 +51,11 @@ import com.myflightbook.android.WebServices.AuthToken;
 import com.myflightbook.android.WebServices.CommitFlightSvc;
 import com.myflightbook.android.WebServices.MFBSoap;
 import com.myflightbook.android.WebServices.RecentFlightsSvc;
+import com.myflightbook.android.WebServices.UTCDate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -84,8 +86,10 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
 
     public static Aircraft[] m_rgac = null;
 
+    public enum FlightDetail {Low, Medium, High}
+
     public static Boolean fShowFlightImages = true;
-    public static Boolean fShowFlightTimes = true;
+    public static FlightDetail flightDetail = FlightDetail.Low;
 
     private FlightQuery currentQuery = new FlightQuery();
 
@@ -101,6 +105,14 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
 
         private String formattedTimeForLabel(int idLabel, int val) {
             return (val == 0) ? "" : String.format(Locale.getDefault(), "<b>%s:</b> %d ", getString(idLabel), val);
+        }
+
+        private String formattedTimeForLabel(int idLabel, Date dtStart, Date dtEnd) {
+            if (dtStart == null || dtEnd == null || UTCDate.IsNullDate(dtStart) || UTCDate.IsNullDate(dtEnd))
+                return "";
+
+            Boolean fLocal = DlgDatePicker.fUseLocalTime;
+            return String.format(Locale.getDefault(), "<b>%s: </b> %s - %s ", getString(idLabel), UTCDate.formatDate(fLocal, dtStart, this.getContext()), UTCDate.formatDate(fLocal, dtEnd, this.getContext()));
         }
 
         @Override
@@ -136,7 +148,7 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
             if (ActRecentsWS.fShowFlightImages) {
                 ivCamera.setVisibility(View.VISIBLE);
                 if (le.hasImages() || (ac != null && ac.HasImage())) {
-                    MFBImageInfo mfbii = le.hasImages() ? le.rgFlightImages[0] : ac.AircraftImages[0];
+                    MFBImageInfo mfbii = le.hasImages() ? le.rgFlightImages[0] : ac.getDefaultImage();
                     Bitmap b = mfbii.bitmapFromThumb();
                     if (b != null) {
                         ivCamera.setImageBitmap(b);
@@ -173,7 +185,7 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
 
             TextView txtHeader = v.findViewById(R.id.txtFlightHeader);
             String szHeaderHTML = String.format(Locale.getDefault(),
-                    "<strong><big>%s %s %s</big></strong>%s <i><font color='gray'>%s</font></i>",
+                    "<strong><big>%s %s %s</big></strong>%s <i><strong><font color='gray'>%s</font></strong></i>",
                     TextUtils.htmlEncode(DateFormat.getDateFormat(this.getContext()).format(le.dtFlight)),
                     (le.IsPendingFlight() ? (" " + getString(R.string.txtPending)) : ""),
                     TextUtils.htmlEncode(szTailNumber.trim()),
@@ -192,7 +204,7 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
 
             TextView txtFlightTimes = v.findViewById(R.id.txtFlightTimes);
             StringBuilder sb = new StringBuilder();
-            if (fShowFlightTimes) {
+            if (flightDetail != FlightDetail.Low) {
                 sb.append(formattedTimeForLabel(R.string.lblLandingsAlt, le.cLandings));
                 sb.append(formattedTimeForLabel(R.string.lblApproaches, le.cApproaches));
                 sb.append(formattedTimeForLabel(R.string.lblNight, le.decNight, em));
@@ -205,6 +217,11 @@ public class ActRecentsWS extends ListFragment implements OnItemSelectedListener
                 sb.append(formattedTimeForLabel(R.string.lblSIC, le.decSIC, em));
                 sb.append(formattedTimeForLabel(R.string.lblPIC, le.decPIC, em));
                 sb.append(formattedTimeForLabel(R.string.lblTotal, le.decTotal, em));
+
+                if (flightDetail == FlightDetail.High) {
+                    sb.append(formattedTimeForLabel(R.string.autoEngine, le.dtEngineStart, le.dtEngineEnd));
+                    sb.append(formattedTimeForLabel(R.string.autoFlight, le.dtFlightStart, le.dtFlightEnd));
+                }
             }
             txtFlightTimes.setVisibility(sb.length() == 0 ? View.GONE : View.VISIBLE);
             txtFlightTimes.setText(Html.fromHtml(sb.toString()));

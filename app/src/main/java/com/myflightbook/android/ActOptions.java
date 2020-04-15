@@ -1,7 +1,7 @@
 /*
 	MyFlightbook for Android - provides native access to MyFlightbook
 	pilot's logbook
-    Copyright (C) 2017-2019 MyFlightbook, LLC
+    Copyright (C) 2017-2020 MyFlightbook, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -116,10 +116,6 @@ public class ActOptions extends ActMFBForm implements android.view.View.OnClickL
         ck.setOnClickListener(this);
         ck.setChecked(ActRecentsWS.fShowFlightImages);
 
-        ck = (CheckBox) findViewById(R.id.ckShowFlightTimes);
-        ck.setOnClickListener(this);
-        ck.setChecked(ActRecentsWS.fShowFlightTimes);
-
         // Strings for spinner
         String[] rgAutoHobbs = {getString(R.string.autoNone),
                 getString(R.string.autoFlight),
@@ -190,6 +186,15 @@ public class ActOptions extends ActMFBForm implements android.view.View.OnClickL
         sp.setOnItemSelectedListener(this);
         sp.setPromptId(R.string.lblAutoFillOptions);
 
+        sp = (Spinner) findViewById(R.id.spnFlightDetail);
+        adapter = new ArrayAdapter<>(getActivity(), R.layout.mfbsimpletextitem, new String[] {
+                getString(R.string.lblFlightDetailLow), getString(R.string.lblFlightDetailMed), getString(R.string.lblFlightDetailHigh)
+        });
+        sp.setAdapter(adapter);
+        sp.setSelection(ActRecentsWS.flightDetail.ordinal());
+        sp.setOnItemSelectedListener(this);
+        sp.setPromptId(R.id.lblShowFlightTimes);
+
         TextView t = (TextView) findViewById(R.id.txtCopyright);
         if (MFBConstants.fIsDebug) {
             String s = String.format("%s - DEBUG (%s)",
@@ -202,10 +207,24 @@ public class ActOptions extends ActMFBForm implements android.view.View.OnClickL
     private void updateStatus() {
         // refresh sign-in status
         TextView t = (TextView) findViewById(R.id.txtSignInStatus);
-        if (AuthToken.FIsValid())
+        View bSignIn = findViewById(R.id.btnSignIn);
+        View bSignOut = findViewById(R.id.btnSignOut);
+        View bCreateAccount = findViewById(R.id.btnCreateNewAccount);
+        View lblWhyAccount = findViewById(R.id.lblWhyAccount);
+        if (AuthToken.FIsValid()) {
             t.setText(String.format(this.getString(R.string.statusSignedIn), AuthToken.m_szEmail));
-        else
+            bSignIn.setVisibility(View.GONE);
+            bSignOut.setVisibility(View.VISIBLE);
+            bCreateAccount.setVisibility(View.GONE);
+            lblWhyAccount.setVisibility(View.GONE);
+        }
+        else {
             t.setText(this.getString(R.string.statusNotSignedIn));
+            bSignIn.setVisibility(View.VISIBLE);
+            bSignOut.setVisibility(View.GONE);
+            bCreateAccount.setVisibility(View.VISIBLE);
+            lblWhyAccount.setVisibility(View.VISIBLE);
+        }
 
         findViewById(R.id.btnSignOut).setVisibility(AuthToken.FIsValid() ? View.VISIBLE : View.GONE);
     }
@@ -233,6 +252,9 @@ public class ActOptions extends ActMFBForm implements android.view.View.OnClickL
                 break;
             case R.id.spnNightLandingDef:
                 MFBLocation.NightLandingPref = MFBLocation.NightLandingCriteria.values()[i];
+                break;
+            case R.id.spnFlightDetail:
+                ActRecentsWS.flightDetail = ActRecentsWS.FlightDetail.values()[i];
                 break;
             case R.id.spnNightMode:
                 if (MFBMain.NightModePref != i) {
@@ -431,9 +453,6 @@ public class ActOptions extends ActMFBForm implements android.view.View.OnClickL
                 break;
             case R.id.ckShowFlightImages:
                 ActRecentsWS.fShowFlightImages = ((CheckBox) v).isChecked();
-                break;
-            case R.id.ckShowFlightTimes:
-                ActRecentsWS.fShowFlightTimes = ((CheckBox) v).isChecked();
                 break;
             case R.id.btnContact:
                 this.ContactUs();

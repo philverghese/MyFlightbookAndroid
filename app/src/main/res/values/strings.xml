@@ -36,7 +36,10 @@
     <string name="lblOptNightLandingsSunsetPlus1hour">1 hour after sunset</string>
     <string name="lblImageOptions">Flight display Options</string>
     <string name="lblShowFlightImages">Show images for flights</string>
-    <string name="lblShowFlightTimes">Show times for flights</string>
+    <string name="lblShowFlightTimes">Flight Detail:</string>
+    <string name="lblFlightDetailLow">Low</string>
+    <string name="lblFlightDetailMed">Med</string>
+    <string name="lblFlightDetailHigh">High</string>
     <string name="lblNightMode">Night Mode</string>
     <string name="lblNightModeOff">Off</string>
     <string name="lblNightModeOn">On</string>
@@ -169,6 +172,8 @@
     <string name="lbl100Hour">100Hour:</string>
     <string name="lblOilChange">Oil Change:</string>
     <string name="lblNewEngine">New Engine</string>
+    <string name="lblMaintNotes">Notes:</string>
+    <string name="lblMaintNotesHint">E.g., location/type/error of VOR check</string>
     <string name="lblAircraftPrefsHeader">Autofill for new flights in this aircraft</string>
     <string name="lblShowAircraft">Show this aircraft for new flights</string>
     <string name="lblRoleNone">Do not autofill</string>
@@ -467,7 +472,7 @@
     <string name="lblInstructors">Instructors</string>
     <string name="lblAchievements">Achievements</string>
     <string name="lblRatingsProgress">Ratings Progress</string>
-    <string name="lbl8710">8710 Form</string>
+    <string name="lbl8710">8710 / IACRA</string>
     <string name="lblReqSigs">Request Signatures</string>
     <string name="errTrainingNotAvailable">You must be signed in and have access to the Internet to view training items.</string>
 
@@ -535,4 +540,14 @@
     <!-- Widgets -->
     <string name="noCurrency">No currency to display</string>
     <string name="noTotals">No totals to display</string>
+
+    <!-- Totals Groups -->
+    <string name="totalsGroupNone">Other Totals</string>
+    <string name="totalsGroupCategoryClass">Totals by Category/Class</string>
+    <string name="totalsGroupICAO">Totals by ICAO code</string>
+    <string name="totalsGroupModel">Totals by Model</string>
+    <string name="totalsGroupCapabilities">Totals by aircraft features</string>
+    <string name="totalsGroupCore">Standard Logbook Times</string>
+    <string name="totalsGroupProperties">Other Totals</string>
+    <string name="totalsGroupTotal">Overall Total Flight Time</string>
 </resources>

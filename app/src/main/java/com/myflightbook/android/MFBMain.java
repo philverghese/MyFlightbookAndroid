@@ -1,7 +1,7 @@
 /*
 	MyFlightbook for Android - provides native access to MyFlightbook
 	pilot's logbook
-    Copyright (C) 2017-2019 MyFlightbook, LLC
+    Copyright (C) 2017-2020 MyFlightbook, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,9 +55,6 @@ import android.widget.TabHost.TabContentFactory;
 
 import com.myflightbook.android.WebServices.AuthToken;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -104,7 +101,7 @@ public class MFBMain extends AppCompatActivity implements OnTabChangeListener {
     static private final String m_KeysLastTab = "lastTab3";
 
     static private final String m_KeysShowFlightImages = "showFlightImages";
-    static private final String m_KeysShowFlightTimes = "showFlightTimes";
+    static private final String m_KeysShowFlightTimes = "showFlightTimes2";
 
     static private final String m_KeysIsFlying = "isFlying";
     static private final String m_KeysIsRecording = "isRecording";
@@ -174,13 +171,8 @@ public class MFBMain extends AppCompatActivity implements OnTabChangeListener {
 
                 Telemetry t = Telemetry.TelemetryFromURL(urls[0], this.m_ctxt.getContext());
 
-                if (t != null) {
-                    try {
-                        leResult = GPSSim.ImportTelemetry(m_ctxt.getCallingActivity(), t.Samples(), urls[0]);
-                    } catch (IOException | XmlPullParserException e) {
-                        e.printStackTrace();
-                    }
-                }
+                if (t != null)
+                    leResult = GPSSim.ImportTelemetry(m_ctxt.getCallingActivity(), t, urls[0]);
             }
             return leResult;
         }
@@ -691,7 +683,7 @@ public class MFBMain extends AppCompatActivity implements OnTabChangeListener {
             DlgDatePicker.fUseLocalTime = mPrefs.getBoolean(m_KeysUseLocal, false);
 
             ActRecentsWS.fShowFlightImages = mPrefs.getBoolean(m_KeysShowFlightImages, true);
-            ActRecentsWS.fShowFlightTimes = mPrefs.getBoolean(m_KeysShowFlightTimes, true);
+            ActRecentsWS.flightDetail = ActRecentsWS.FlightDetail.values()[mPrefs.getInt(m_KeysShowFlightTimes, 0)];
 
             m_fSeenWarning = mPrefs.getBoolean(m_KeysHasSeenWarning, false);
             mLastTabIndex = mPrefs.getInt(m_KeysLastTab, 0);
@@ -734,7 +726,7 @@ public class MFBMain extends AppCompatActivity implements OnTabChangeListener {
         ed.putBoolean(m_KeysHasSeenWarning, m_fSeenWarning);
 
         ed.putBoolean(m_KeysShowFlightImages, ActRecentsWS.fShowFlightImages);
-        ed.putBoolean(m_KeysShowFlightTimes, ActRecentsWS.fShowFlightTimes);
+        ed.putInt(m_KeysShowFlightTimes, ActRecentsWS.flightDetail.ordinal());
 
         ed.putInt(m_KeysLastTab, mTabHost.getCurrentTab());
         ed.putLong(m_TimeOfLastVacuum, mLastVacuum);
